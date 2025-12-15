@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multimodal-rag-deployment
+  labels:
+    app: multimodal-rag
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multimodal-rag
+  template:
+    metadata:
+      labels:
+        app: multimodal-rag
+    spec:
+      containers:
+      - name: multimodal-rag
+        image: multimodal-rag:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        env:
+        - name: LOG_LEVEL
+          value: "INFO"
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multimodal-rag-service
+spec:
+  selector:
+    app: multimodal-rag
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

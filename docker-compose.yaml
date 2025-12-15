@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    image: multimodal-ragpipeline-backend:latest
+    container_name: rag-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=Multimodal RAG
+      - DEBUG=True
+      - LOG_LEVEL=INFO
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - qdrant
+    volumes:
+      # Optional: Mount app code for hot reloading during dev
+      # - ./app:/app/app
+      # Mount temp dir for chunks if needed, or rely on container ephemeral storage
+      - ./tmp:/app/tmp
+
+  frontend:
+    image: multimodal-ragpipeline-frontend:latest
+    container_name: rag-ui
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://backend:8000/api/v1
+      - RAG_API_KEY=${RAG_API_KEY:-}
+    depends_on:
+      - backend
+
+volumes:
+  qdrant_data:

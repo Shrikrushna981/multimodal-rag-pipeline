@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+
+# Virtualenvs
+.venv/
+venv/
+
+# Logs
+LOGS/
+
+# Qdrant data
+qdrant_data/
+
+# Temp files
+tmp/
+
+# Streamlit
+.streamlit/
+
+# IDEs
+.vscode/
+.idea/
+
+# Test / build
+.pytest_cache/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
